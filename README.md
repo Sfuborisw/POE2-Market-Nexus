@@ -57,3 +57,28 @@ psql -h localhost -p 5432 -U boris -d poe2_nexus
     ORDER BY p.timestamp DESC
     LIMIT 5;
 - **Exit psql:** \q or type exit
+
+## 🤖 Automation (Cron Job)
+
+To keep market data up-to-date, we use **Cron** on Ubuntu to automate the execution of the scraping script.
+
+### 1. Get Absolute Paths
+Before setting up the Cron Job, you need to confirm the absolute paths for the Python executable and the script:
+- **Python Path**: Run `which python3` inside the virtual environment (typical path is `/mnt/c/Users/Metrotown/Documents/Git/POE2-Market-Nexus/venv/bin/python3`).
+- **Script Path**: The full absolute path to `price_fetcher.py`.
+
+### 2. Configure Crontab
+Open the Cron editor:
+```bash
+crontab -e
+```
+Add the following line to the bottom of the file (this schedules the script to run automatically at the top of every hour):
+```bash
+0 * * * * /YourPythonAbsPath YourScriptAbsPath >> YourLogAbsPath 2>&1
+```
+
+### 3. Verify Execution Status
+You can check the log file to verify if the script is running correctly:
+```bash
+cat YourLogAbsPath
+```
