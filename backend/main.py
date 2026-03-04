@@ -1,19 +1,50 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from .database import engine, Base, get_db
-
-# Create tables in Postgres
-Base.metadata.create_all(bind=engine)
+from typing import List
+from backend.database import SessionLocal, PriceHistory
+from pydantic import BaseModel
+from datetime import datetime
 
 app = FastAPI(title="POE2 Market Nexus API")
 
 
-@app.get("/")
-def read_root():
-    return {"status": "POE2 Market Nexus API is running"}
+class PriceRecord(BaseModel):
+    id: int
+    item_name: str
+    price_value: float
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
 
 
-@app.get("/items")
-def get_items(db: Session = Depends(get_db)):
-    # Placeholder for fetching items later
-    return {"message": "Database connected successfully"}
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@app.get("/prices", response_model=List[PriceRecord])
+def get_all_prices(db: Session = Depends(get_db)):
+    # Use joinedload pre-load Item data for efficiency
+    from sqlalchemy.orm import joinedload
+
+    results = (
+        db.query(PriceHistory)
+        .options(joinedload(PriceHistory.item))
+        .order_by(PriceHistory.timestamp.desc())
+        .limit(100)
+        .all()
+    )
+
+    return [
+        {
+            "id": r.id,
+            "item_name": r.item.name if r.item else f"Unknown (ID: {r.item_id})",
+            "price_value": r.price_value,
+            "timestamp": r.timestamp,
+        }
+        for r in results
+    ]
