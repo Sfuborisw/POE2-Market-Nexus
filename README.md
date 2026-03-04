@@ -47,6 +47,7 @@ psql -h localhost -p 5432 -U boris -d poe2_nexus
 ```
 
 ### Useful SQL Commands:
+- **Turn databases:** sudo service postgresql start
 - **List all tables:** \dt
 - **View table structure:** \d table_name (e.g., \d price_history)
 - **Check latest 5 prices:**
