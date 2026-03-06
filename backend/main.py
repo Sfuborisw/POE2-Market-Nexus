@@ -4,8 +4,16 @@ from typing import List
 from backend.database import SessionLocal, PriceHistory
 from pydantic import BaseModel
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="POE2 Market Nexus API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 開發階段先允許所有來源
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class PriceRecord(BaseModel):

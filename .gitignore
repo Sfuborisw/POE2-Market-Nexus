@@ -6,3 +6,12 @@ __pycache__/
 
 # Logs
 scraper/cron_log.log
+
+# Frontend (React/Vite) related
+frontend/node_modules/
+frontend/dist/
+frontend/.DS_Store
+
+# IDE related
+.vscode/
+.idea/
