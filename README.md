@@ -83,3 +83,41 @@ You can check the log file to verify if the script is running correctly:
 ```bash
 cat YourLogAbsPath
 ```
+
+## 🚀 Getting Started
+
+This project consists of a FastAPI backend and a React (Vite) frontend.
+
+### 1. Backend (FastAPI)
+Ensure your PostgreSQL service is running before starting the backend.
+```bash
+# Navigate to the root directory
+# Ensure your virtual environment is active
+source venv/bin/activate  # On Ubuntu/Git Bash
+```
+
+# Start the FastAPI server
+uvicorn backend.main:app --reload
+The API will be available at http://127.0.0.1:8000.
+
+2. Frontend (React + Vite)
+The frontend requires Node.js and npm.
+
+Bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install dependencies (first time only)
+npm install
+
+# Start the development server
+npm run dev
+The dashboard will be available at http://localhost:5173.
+
+🗄️ Database
+Make sure to check your PostgreSQL status:
+
+```
+Bash
+sudo service postgresql start
+```
