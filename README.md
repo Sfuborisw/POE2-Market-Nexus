@@ -2,8 +2,6 @@
 
 This is a data-driven project designed to track and analyze the economy of Path of Exile 2. It automatically fetches market data from Poe.ninja and stores it in a normalized PostgreSQL database for historical analysis.
 
-## 🚀 Getting Started
-
 ### Prerequisites
 - **OS**: Windows 11 with Ubuntu (WSL2)
 - **Database**: PostgreSQL
@@ -128,7 +126,6 @@ The dashboard will be available at http://localhost:5173.
 
 ## 🗄️ Database
 Make sure to check your PostgreSQL status:
-
 ```
 Bash
 sudo service postgresql start
