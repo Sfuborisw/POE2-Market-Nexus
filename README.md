@@ -100,21 +100,27 @@ source venv/bin/activate  # On Ubuntu/Git Bash
 uvicorn backend.main:app --reload
 The API will be available at http://127.0.0.1:8000.
 
-2. Frontend (React + Vite)
+### 2. Frontend (React + Vite)
 The frontend requires Node.js and npm.
 
+```
 Bash
 # Navigate to the frontend directory
 cd frontend
+```
 
 # Install dependencies (first time only)
+```
 npm install
+```
 
 # Start the development server
+```
 npm run dev
+```
 The dashboard will be available at http://localhost:5173.
 
-🗄️ Database
+## 🗄️ Database
 Make sure to check your PostgreSQL status:
 
 ```
