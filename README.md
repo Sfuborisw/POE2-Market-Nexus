@@ -30,6 +30,12 @@ Create a .env file in the root directory:
 DATABASE_URL=postgresql://your_user:your_password@localhost:5432/poe2_nexus
 ```
 
+4. Run the Backend
+```
+Bash
+uvicorn main:app --reload
+```
+
 
 ## 🛠️ Data Ingestion
 To fetch the latest currency prices and sync them to the database, run:
