@@ -48,6 +48,7 @@ How to enter SQL Interface:
 ```bash
 # Using TCP/IP connection (Recommended for WSL2)
 psql -h localhost -p 5432 -U boris -d poe2_nexus
+sudo -u postgres psql
 ```
 
 ### Useful SQL Commands:
@@ -124,9 +125,3 @@ npm run dev
 ```
 The dashboard will be available at http://localhost:5173.
 
-## 🗄️ Database
-Make sure to check your PostgreSQL status:
-```
-Bash
-sudo service postgresql start
-```
