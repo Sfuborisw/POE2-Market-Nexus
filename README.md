@@ -28,10 +28,13 @@ Create a .env file in the root directory:
 DATABASE_URL=postgresql://your_user:your_password@localhost:5432/poe2_nexus
 ```
 
-4. Run the Backend
+4. Turn on the DB
+psql -h localhost -p 5432 -U your_id -d poe2_nexus
+
+5. Run the Backend
 ```
 Bash
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
 ```
 
 
