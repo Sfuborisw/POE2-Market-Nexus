@@ -8,6 +8,7 @@ interface PriceData {
 
 function App() {
   const [prices, setPrices] = useState<PriceData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/prices")
@@ -16,89 +17,113 @@ function App() {
       .catch((err) => console.error("Error fetching data:", err));
   }, []);
 
+  const filteredPrices = prices.filter((p) =>
+    p.item_name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-gray-200">
-      <nav className="bg-[#161616] border-b border-[#2a2a2a] px-8 py-4 sticky top-0 z-50">
+    <div className="min-h-screen bg-[#0b0d11] text-white font-sans">
+      <nav className="bg-[#15181e] border-b border-slate-800 px-8 py-4 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#c8a165] rounded-sm rotate-45 flex items-center justify-center shadow-[0_0_10px_rgba(200,161,101,0.3)]">
-              <span className="rotate-[-45deg] text-[#0f0f0f] font-black">
-                N
-              </span>
+            <div className="w-8 h-8 border-2 border-[#d4af37] flex items-center justify-center font-bold text-[#d4af37]">
+              N
             </div>
-            <h1 className="text-xl font-bold text-[#c8a165] tracking-widest uppercase">
-              Nexus <span className="text-gray-500 font-light">v2</span>
+            <h1 className="text-xl font-bold tracking-tight text-white uppercase">
+              Market <span className="text-[#d4af37]">Nexus</span>
             </h1>
           </div>
 
-          <div className="flex gap-6 text-sm uppercase tracking-tighter font-medium">
-            <a href="#" className="text-[#c8a165] border-b border-[#c8a165]">
+          <div className="flex gap-8 text-xs font-bold uppercase tracking-widest">
+            <a
+              href="#"
+              className="text-[#d4af37] hover:text-white transition-colors"
+            >
               Market
             </a>
             <a
               href="#"
-              className="text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-slate-400 hover:text-white transition-colors"
             >
-              Currency
+              Analytics
             </a>
             <a
               href="#"
-              className="text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-slate-400 hover:text-white transition-colors"
             >
-              History
+              Settings
             </a>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto p-8">
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-10 border-b border-[#2a2a2a] pb-6">
-          <h1 className="text-4xl font-extrabold text-[#c8a165] tracking-tighter uppercase">
-            Market Dashboard
-          </h1>
-          <div className="bg-[#1a1a1a] px-4 py-2 rounded border border-[#2a2a2a]">
-            <span className="text-sm text-gray-500 uppercase tracking-widest">
+      <main className="max-w-6xl mx-auto p-8">
+        {/* Search & Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-[#15181e] p-6 border border-slate-800 rounded-lg shadow-xl">
+            <span className="text-slate-500 text-[10px] uppercase font-bold tracking-tighter">
               Inventory Size
             </span>
-            <p className="text-2xl font-mono text-[#c8a165]">{prices.length}</p>
+            <p className="text-3xl font-mono text-[#d4af37] mt-1">
+              {prices.length}
+            </p>
+          </div>
+          <div className="md:col-span-3 bg-[#15181e] p-4 border border-slate-800 rounded-lg flex items-center">
+            <span className="mr-4 text-slate-500">🔍</span>
+            <input
+              type="text"
+              placeholder="SEARCH ITEMS (E.G. EXALTED)..."
+              className="bg-transparent w-full outline-none text-white placeholder:text-slate-700 uppercase text-sm font-medium tracking-widest"
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
 
-        {/* Market Table */}
-        <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] overflow-hidden shadow-2xl">
+        <div className="bg-[#15181e] border border-slate-800 rounded-lg overflow-hidden shadow-2xl">
           <table className="w-full text-left">
-            <thead className="bg-[#252525] text-[#c8a165] text-sm uppercase">
+            <thead className="bg-[#1c2029] border-b border-slate-800">
               <tr>
-                <th className="p-4 border-b border-[#2a2a2a]">Item Name</th>
-                <th className="p-4 border-b border-[#2a2a2a] text-right">
+                <th className="p-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  Item Name
+                </th>
+                <th className="p-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
                   Market Price
                 </th>
-                <th className="p-4 border-b border-[#2a2a2a]">Last Observed</th>
+                <th className="p-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
+                  Observed
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2a2a2a]">
-              {prices.map((p, idx) => (
+            <tbody className="divide-y divide-slate-800/50">
+              {filteredPrices.map((p, idx) => (
                 <tr
                   key={idx}
-                  className="hover:bg-white/5 transition-colors group"
+                  className="hover:bg-slate-800/20 transition-all duration-200"
                 >
-                  <td className="p-4 font-semibold text-gray-100 group-hover:text-[#c8a165]">
+                  <td className="p-5 text-slate-100 font-bold tracking-tight">
                     {p.item_name}
                   </td>
-                  <td className="p-4 text-right font-mono text-amber-400">
-                    {p.price_value}{" "}
-                    <span className="text-xs text-gray-600">Gold</span>
+                  <td className="p-5 text-right">
+                    <span className="text-white font-mono text-lg">
+                      {p.price_value.toLocaleString()}
+                    </span>
+                    <span className="ml-2 text-[10px] text-[#d4af37] font-black italic">
+                      GOLD
+                    </span>
                   </td>
-                  <td className="p-4 text-sm text-gray-500 italic">
-                    {new Date(p.timestamp).toLocaleString()}
+                  <td className="p-5 text-right text-xs font-medium text-slate-500">
+                    {new Date(p.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
