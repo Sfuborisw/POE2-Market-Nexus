@@ -16,7 +16,7 @@ import {
   Gem,
 } from "lucide-react";
 
-// 模擬圖表數據 (對齊圖中 2月22-25日)
+// Simulation
 const data = [
   { time: "00:00 Feb 22", rate: 298 },
   { time: "12:00 Feb 23", rate: 287 },
@@ -27,7 +27,7 @@ const data = [
 export default function Dashboard() {
   return (
     <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans">
-      {/* 1. Sidebar - 對齊圖中左側 Navigation */}
+      {/* 1. Sidebar - Navigation */}
       <aside className="w-64 border-r border-slate-800 p-6 flex flex-col gap-8 bg-[#161922]">
         <div className="flex items-center gap-2 text-white">
           <Gem className="text-blue-400" />
@@ -43,7 +43,7 @@ export default function Dashboard() {
           </select>
         </nav>
 
-        {/* 套利計算機入口 */}
+        {/* Arbitrage Calculator */}
         <div className="mt-auto p-4 rounded-xl bg-slate-800/30 border border-slate-700">
           <h3 className="flex items-center gap-2 text-sm font-bold mb-3">
             <TrendingUp size={16} className="text-green-400" /> Arbitrage
@@ -72,7 +72,7 @@ export default function Dashboard() {
           </button>
         </header>
 
-        {/* 3. Hero Stats - 對齊圖中 1 Divine = 286.94 EXALTED */}
+        {/* 3. Hero Stats - 1 Divine = 286.94 EXALTED */}
         <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-800 mb-8">
           <div className="flex items-end gap-4 mb-6">
             <span className="text-5xl font-black text-white">
@@ -80,7 +80,7 @@ export default function Dashboard() {
             </span>
           </div>
 
-          {/* 圖表區 */}
+          {/* Chart Section */}
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
@@ -143,7 +143,7 @@ function StatCard({
 }: {
   label: string;
   value: string | number;
-  subValue?: string; // 👈 加左問號，Latest Rate 嗰格就唔會再報錯
+  subValue?: string;
   color?: string;
 }) {
   return (
@@ -152,7 +152,6 @@ function StatCard({
         {label}
       </div>
       <div className={`text-2xl font-mono font-bold ${color}`}>{value}</div>
-      {/* 只有當 subValue 存在時先至顯示 */}
       {subValue && (
         <div className="text-[10px] mt-1 text-green-500 font-bold">
           {subValue}
