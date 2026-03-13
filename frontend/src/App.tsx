@@ -1,104 +1,163 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Calculator,
+  Settings,
+  Gem,
+} from "lucide-react";
 
-function App() {
-  const [prices, setPrices] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+// 模擬圖表數據 (對齊圖中 2月22-25日)
+const data = [
+  { time: "00:00 Feb 22", rate: 298 },
+  { time: "12:00 Feb 23", rate: 287 },
+  { time: "00:00 Feb 24", rate: 295 },
+  { time: "12:00 Feb 25", rate: 280 },
+];
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/prices")
-      .then((res) => res.json())
-      .then((data) => setPrices(data))
-      .catch((err) => console.error(err));
-  }, []);
-
-  const filteredPrices = prices.filter((p) =>
-    p.item_name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
+export default function Dashboard() {
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      <nav className="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tighter">
-              POE2 <span className="text-blue-500">NEXUS</span>
-            </span>
+    <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans">
+      {/* 1. Sidebar - 對齊圖中左側 Navigation */}
+      <aside className="w-64 border-r border-slate-800 p-6 flex flex-col gap-8 bg-[#161922]">
+        <div className="flex items-center gap-2 text-white">
+          <Gem className="text-blue-400" />
+          <span className="font-bold text-lg tracking-tight">Navigation</span>
+        </div>
+
+        <nav className="space-y-4">
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            Select Currency
           </div>
-          <div className="flex gap-8 text-sm font-medium">
-            <span className="cursor-pointer hover:text-blue-500 transition-colors">
-              Market
-            </span>
-            <span className="cursor-pointer text-slate-500 hover:text-blue-500 transition-colors">
-              Analytics
-            </span>
+          <select className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+            <option>exalted</option>
+          </select>
+        </nav>
+
+        {/* 套利計算機入口 */}
+        <div className="mt-auto p-4 rounded-xl bg-slate-800/30 border border-slate-700">
+          <h3 className="flex items-center gap-2 text-sm font-bold mb-3">
+            <TrendingUp size={16} className="text-green-400" /> Arbitrage
+            Calculator
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span>Investment</span> <span className="text-white">10.00</span>
+            </div>
+            <div className="p-2 mt-2 rounded bg-green-500/10 text-green-400 font-bold text-center">
+              Profit: 309.9%
+            </div>
           </div>
         </div>
-      </nav>
+      </aside>
 
-      <main className="flex-grow pt-24 px-6 max-w-6xl mx-auto w-full">
-        <header className="mb-10">
-          <h2 className="text-4xl font-extrabold tracking-tight mb-3">
-            Market Dashboard
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400">
-            Live trading data for Path of Exile 2 items.
-          </p>
+      {/* 2. Main Content */}
+      <main className="flex-grow overflow-y-auto p-10">
+        <header className="mb-8 flex justify-between items-center">
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <Gem className="text-blue-400" size={32} /> POE2 Market Pro
+            Analytics
+          </h1>
+          <button className="text-xs text-slate-400 hover:text-white transition-colors">
+            Deploy
+          </button>
         </header>
 
-        <div className="mb-8 relative group">
-          <input
-            type="text"
-            placeholder="Search assets..."
-            className="w-full p-4 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 outline-none transition-all shadow-sm"
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        {/* 3. Hero Stats - 對齊圖中 1 Divine = 286.94 EXALTED */}
+        <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-800 mb-8">
+          <div className="flex items-end gap-4 mb-6">
+            <span className="text-5xl font-black text-white">
+              1 Divine = 286.94 EXALTED
+            </span>
+          </div>
+
+          {/* 圖表區 */}
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#1e293b"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="time"
+                  stroke="#64748b"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis hide domain={["auto", "auto"]} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1e293b",
+                    border: "none",
+                    borderRadius: "8px",
+                  }}
+                  itemStyle={{ color: "#4ade80" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="rate"
+                  stroke="#4ade80"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: "#4ade80", strokeWidth: 2 }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900/50 shadow-sm">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-              <tr>
-                <th className="p-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Asset Name
-                </th>
-                <th className="p-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-right">
-                  Price (Gold)
-                </th>
-                <th className="p-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-right">
-                  Last Observed
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {filteredPrices.map((p, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors group"
-                >
-                  <td className="p-4 font-semibold text-slate-700 dark:text-slate-200">
-                    {p.item_name}
-                  </td>
-                  <td className="p-4 text-right">
-                    <span className="font-mono text-lg text-blue-600 dark:text-blue-400">
-                      {p.price_value.toLocaleString()}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right text-xs text-slate-400 group-hover:text-slate-500">
-                    {new Date(p.timestamp).toLocaleTimeString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* 4. Bottom Stats Grid */}
+        <div className="grid grid-cols-4 gap-6">
+          <StatCard label="Latest Rate" value="286.9440" />
+          <StatCard
+            label="Last Move"
+            value="1.4744"
+            subValue="↑ 1.474448"
+            color="text-green-400"
+          />
+          <StatCard label="Gold Fee (per Unit)" value="120" />
+          <StatCard label="Gold for 100 Units" value="12,000" />
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="py-12 border-t border-slate-200 dark:border-slate-800 text-center text-sm text-slate-400">
-        © 2026 POE2 Market Nexus • Optimized for SFU Developers
-      </footer>
     </div>
   );
 }
 
-export default App;
+function StatCard({
+  label,
+  value,
+  subValue,
+  color = "text-white",
+}: {
+  label: string;
+  value: string | number;
+  subValue?: string; // 👈 加左問號，Latest Rate 嗰格就唔會再報錯
+  color?: string;
+}) {
+  return (
+    <div className="p-6 rounded-2xl bg-slate-900/30 border border-slate-800">
+      <div className="text-xs font-bold text-slate-500 uppercase mb-2">
+        {label}
+      </div>
+      <div className={`text-2xl font-mono font-bold ${color}`}>{value}</div>
+      {/* 只有當 subValue 存在時先至顯示 */}
+      {subValue && (
+        <div className="text-[10px] mt-1 text-green-500 font-bold">
+          {subValue}
+        </div>
+      )}
+    </div>
+  );
+}
