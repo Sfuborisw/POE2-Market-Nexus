@@ -24,6 +24,79 @@ const data = [
   { time: "12:00 Feb 25", rate: 280 },
 ];
 
+function ArbitrageCalculator() {
+  const [investment, setInvestment] = useState<number>(10);
+  const [buyRate, setBuyRate] = useState<number>(280); // 以 280 買入
+  const [sellRate, setSellRate] = useState<number>(286.94); // 以 286.94 賣出
+  const [goldFee, setGoldFee] = useState<number>(120); // 每單位手續費
+
+  // 計算邏輯
+  const totalCost = investment * buyRate + investment * goldFee;
+  const totalRevenue = investment * sellRate;
+  const profit = totalRevenue - totalCost;
+  const profitPercentage = (profit / totalCost) * 100;
+
+  return (
+    <div className="mt-auto p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur-sm">
+      <h3 className="flex items-center gap-2 text-sm font-bold mb-4 text-white">
+        <Calculator size={18} className="text-blue-400" /> Arbitrage Calculator
+      </h3>
+
+      <div className="space-y-4">
+        {/* Input: Investment */}
+        <div>
+          <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
+            Investment (Units)
+          </label>
+          <input
+            type="number"
+            value={investment}
+            onChange={(e) => setInvestment(Number(e.target.value))}
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
+          <div className="p-2 rounded bg-slate-900 border border-slate-800">
+            <span className="text-slate-500">BUY @</span>{" "}
+            <span className="text-white">{buyRate}</span>
+          </div>
+          <div className="p-2 rounded bg-slate-900 border border-slate-800">
+            <span className="text-slate-500">SELL @</span>{" "}
+            <span className="text-white">{sellRate}</span>
+          </div>
+        </div>
+
+        {/* Profit Display */}
+        <div
+          className={`p-3 rounded-xl border ${profit >= 0 ? "bg-green-500/10 border-green-500/20" : "bg-red-500/10 border-red-500/20"} transition-colors`}
+        >
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase">
+              Est. Profit
+            </span>
+            <TrendingUp
+              size={14}
+              className={profit >= 0 ? "text-green-400" : "text-red-400"}
+            />
+          </div>
+          <div
+            className={`text-xl font-black ${profit >= 0 ? "text-green-400" : "text-red-400"}`}
+          >
+            {profit.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
+            <span className="text-[10px]">GOLD</span>
+          </div>
+          <div
+            className={`text-[11px] font-bold mt-1 ${profit >= 0 ? "text-green-500" : "text-red-500"}`}
+          >
+            {profit >= 0 ? "↑" : "↓"} {profitPercentage.toFixed(2)}%
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   return (
     <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans">
@@ -43,21 +116,8 @@ export default function Dashboard() {
           </select>
         </nav>
 
+        <ArbitrageCalculator />
         {/* Arbitrage Calculator */}
-        <div className="mt-auto p-4 rounded-xl bg-slate-800/30 border border-slate-700">
-          <h3 className="flex items-center gap-2 text-sm font-bold mb-3">
-            <TrendingUp size={16} className="text-green-400" /> Arbitrage
-            Calculator
-          </h3>
-          <div className="space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span>Investment</span> <span className="text-white">10.00</span>
-            </div>
-            <div className="p-2 mt-2 rounded bg-green-500/10 text-green-400 font-bold text-center">
-              Profit: 309.9%
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* 2. Main Content */}
