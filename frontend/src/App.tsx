@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -26,11 +26,11 @@ const data = [
 
 function ArbitrageCalculator() {
   const [investment, setInvestment] = useState<number>(10);
-  const [buyRate, setBuyRate] = useState<number>(280); // 以 280 買入
-  const [sellRate, setSellRate] = useState<number>(286.94); // 以 286.94 賣出
-  const [goldFee, setGoldFee] = useState<number>(120); // 每單位手續費
+  const [buyRate, setBuyRate] = useState<number>(280); // Buy at 280
+  const [sellRate, setSellRate] = useState<number>(286.94); // Sell at 286.94
+  const [goldFee, setGoldFee] = useState<number>(120); // Fee per unit
 
-  // 計算邏輯
+  // Calculation Logic
   const totalCost = investment * buyRate + investment * goldFee;
   const totalRevenue = investment * sellRate;
   const profit = totalRevenue - totalCost;
@@ -98,30 +98,75 @@ function ArbitrageCalculator() {
 }
 
 export default function Dashboard() {
+  // 1. Set Sidebar width state (initial 256px is the original w-64)
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [isResizing, setIsResizing] = useState(false);
+
+  // 2. Resizing logic
+  const startResizing = useCallback(() => {
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = useCallback(
+    (mouseMoveEvent: MouseEvent) => {
+      if (isResizing) {
+        // Limit width range: min 200px, max 1000px
+        const newWidth = mouseMoveEvent.clientX;
+        if (newWidth > 200 && newWidth < 1000) {
+          setSidebarWidth(newWidth);
+        }
+      }
+    },
+    [isResizing],
+  );
+
+  useEffect(() => {
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stopResizing);
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [resize, stopResizing]);
+
   return (
-    <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans">
-      {/* 1. Sidebar - Navigation */}
-      <aside className="w-64 border-r border-slate-800 p-6 flex flex-col gap-8 bg-[#161922]">
-        <div className="flex items-center gap-2 text-white">
+    <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans overflow-hidden">
+      {/* --- 1. Sidebar (Dynamic Width) --- */}
+      <aside
+        style={{ width: `${sidebarWidth}px` }}
+        className="flex-shrink-0 border-r border-slate-800/60 p-6 flex flex-col bg-[#161922] select-none"
+      >
+        <div className="flex items-center gap-2 text-white mb-8">
           <Gem className="text-blue-400" />
           <span className="font-bold text-lg tracking-tight">Navigation</span>
         </div>
 
-        <nav className="space-y-4">
+        <nav className="space-y-4 mb-8">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
             Select Currency
           </div>
-          <select className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm">
+          <select className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm outline-none focus:border-blue-500">
             <option>exalted</option>
           </select>
         </nav>
 
         <ArbitrageCalculator />
-        {/* Arbitrage Calculator */}
       </aside>
 
-      {/* 2. Main Content */}
-      <main className="flex-grow overflow-y-auto p-10">
+      {/* --- 2. Resizable Divider (The Resizer Handle) --- */}
+      <div
+        onMouseDown={startResizing}
+        className={`w-1 cursor-col-resize transition-colors z-50 ${
+          isResizing ? "bg-blue-500" : "bg-transparent hover:bg-blue-500/30"
+        }`}
+      />
+
+      {/* --- 3. Main Content --- */}
+      <main className="flex-grow overflow-y-auto p-10 bg-[#0f1117]">
         <header className="mb-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Gem className="text-blue-400" size={32} /> POE2 Market Pro
@@ -132,7 +177,6 @@ export default function Dashboard() {
           </button>
         </header>
 
-        {/* 3. Hero Stats - 1 Divine = 286.94 EXALTED */}
         <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-800 mb-8">
           <div className="flex items-end gap-4 mb-6">
             <span className="text-5xl font-black text-white">
@@ -140,7 +184,6 @@ export default function Dashboard() {
             </span>
           </div>
 
-          {/* Chart Section */}
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
@@ -178,7 +221,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* 4. Bottom Stats Grid */}
         <div className="grid grid-cols-4 gap-6">
           <StatCard label="Latest Rate" value="286.9440" />
           <StatCard
