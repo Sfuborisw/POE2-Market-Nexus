@@ -56,14 +56,14 @@ function ArbitrageCalculator() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
-          <div className="p-2 rounded bg-slate-900 border border-slate-800">
-            <span className="text-slate-500">BUY @</span>{" "}
-            <span className="text-white">{buyRate}</span>
+        <div className="grid grid-cols-2 gap-4 text-[10px] font-mono">
+          <div className="p-3 rounded bg-slate-900 border border-slate-800 flex justify-between items-center">
+            <span className="text-slate-500">BUY @</span>
+            <span className="text-white text-sm">{buyRate}</span>
           </div>
-          <div className="p-2 rounded bg-slate-900 border border-slate-800">
-            <span className="text-slate-500">SELL @</span>{" "}
-            <span className="text-white">{sellRate}</span>
+          <div className="p-3 rounded bg-slate-900 border border-slate-800 flex justify-between items-center">
+            <span className="text-slate-500">SELL @</span>
+            <span className="text-white text-sm">{sellRate}</span>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ function ArbitrageCalculator() {
 }
 
 export default function Dashboard() {
-  // 1. Set Sidebar width state (initial 256px is the original w-64)
+  // 1. Set Sidebar width state
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
 
