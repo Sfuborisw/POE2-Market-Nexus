@@ -160,10 +160,15 @@ export default function Dashboard() {
       {/* --- 2. Resizable Divider (The Resizer Handle) --- */}
       <div
         onMouseDown={startResizing}
-        className={`w-1 cursor-col-resize transition-colors z-50 ${
-          isResizing ? "bg-blue-500" : "bg-transparent hover:bg-blue-500/30"
-        }`}
-      />
+        className="w-2 flex justify-center cursor-col-resize group"
+      >
+        <div
+          className={`w-[1px] h-full transition-colors ${isResizing ? "bg-blue-400" : "bg-slate-800 group-hover:bg-slate-600"}`}
+        />
+        <div
+          className={`w-[1px] h-full ml-[2px] transition-colors ${isResizing ? "bg-blue-400" : "bg-slate-800 group-hover:bg-slate-600"}`}
+        />
+      </div>
 
       {/* --- 3. Main Content --- */}
       <main className="flex-grow overflow-y-auto p-10 bg-[#0f1117]">
