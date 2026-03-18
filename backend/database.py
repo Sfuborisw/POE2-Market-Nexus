@@ -26,20 +26,21 @@ Base = declarative_base()
 
 class Item(Base):
     __tablename__ = "items"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False)
     category = Column(String)
     icon_url = Column(String)
 
     prices = relationship("PriceHistory", back_populates="item")
+    gold_tax = relationship("GoldTaxRate", back_populates="item", uselist=False)
 
 
 class PriceHistory(Base):
     __tablename__ = "price_history"
     id = Column(Integer, primary_key=True, index=True)
-    item_id = Column(Integer, ForeignKey("items.id"))
+    item_id = Column(String, ForeignKey("items.id"))
     price_value = Column(Float)
-    denominated_currency_id = Column(Integer)
+    denominated_currency_id = Column(String)
     trade_count = Column(Integer)
     timestamp = Column(DateTime(timezone=True), default=datetime.utcnow)
 
@@ -48,6 +49,8 @@ class PriceHistory(Base):
 
 class GoldTaxRate(Base):
     __tablename__ = "gold_tax_rates"
-    id = Column(Integer, primary_key=True, index=True)
-    item_id = Column(Integer, ForeignKey("items.id"))
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    item_id = Column(String, ForeignKey("items.id"), unique=True)
     gold_cost = Column(Integer)
+
+    item = relationship("Item", back_populates="gold_tax")

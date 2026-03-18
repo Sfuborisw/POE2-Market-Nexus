@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from typing import List
-from backend.database import SessionLocal, PriceHistory, GoldTaxRate
+from backend.database import SessionLocal, PriceHistory, GoldTaxRate, Item
 from pydantic import BaseModel
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,7 +37,12 @@ def get_db():
 
 @app.get("/currencies")
 def get_currencies(db: Session = Depends(get_db)):
-    results = db.query(GoldTaxRate.currency_name).distinct().all()
+    results = (
+        db.query(Item.name)
+        .join(GoldTaxRate, Item.id == GoldTaxRate.item_id)
+        .distinct()
+        .all()
+    )
     return [c[0] for c in results]
 
 

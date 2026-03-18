@@ -6,6 +6,7 @@ dist/
 .env
 .DS_Store
 
+
 # Logs
 scraper/cron_log.log
 
@@ -17,3 +18,7 @@ frontend/.DS_Store
 # IDE related
 .vscode/
 .idea/
+
+#JSON files
+*.json
+!gold_tax.json
