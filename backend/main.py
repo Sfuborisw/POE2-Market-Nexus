@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from typing import List
-from backend.database import SessionLocal, PriceHistory
+from backend.database import SessionLocal, PriceHistory, GoldTaxRate
 from pydantic import BaseModel
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(title="POE2 Market Nexus API")
 app.add_middleware(
@@ -32,6 +33,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.get("/currencies")
+def get_currencies(db: Session = Depends(get_db)):
+    results = db.query(GoldTaxRate.currency_name).distinct().all()
+    return [c[0] for c in results]
 
 
 @app.get("/prices", response_model=List[PriceRecord])
