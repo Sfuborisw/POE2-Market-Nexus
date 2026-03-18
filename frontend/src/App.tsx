@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import ArbitrageCalculator from "./components/ArbitrageCalculator";
+import CurrencySelect from "./components/CurrencySelect";
 
 // Simulation
 const data = [
@@ -27,11 +28,9 @@ const data = [
 ];
 
 export default function Dashboard() {
-  // 1. Set Sidebar width state
   const [sidebarWidth, setSidebarWidth] = useState(256);
   const [isResizing, setIsResizing] = useState(false);
 
-  // 2. Resizing logic
   const startResizing = useCallback(() => {
     setIsResizing(true);
   }, []);
@@ -43,7 +42,6 @@ export default function Dashboard() {
   const resize = useCallback(
     (mouseMoveEvent: MouseEvent) => {
       if (isResizing) {
-        // Limit width range: min 200px, max 1000px
         const newWidth = mouseMoveEvent.clientX;
         if (newWidth > 200 && newWidth < 1000) {
           setSidebarWidth(newWidth);
@@ -62,26 +60,38 @@ export default function Dashboard() {
     };
   }, [resize, stopResizing]);
 
+  const [currencies, setCurrencies] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/currencies")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Backend 傳過嚟嘅資料:", data);
+        setCurrencies(data);
+      })
+      .catch((err) => console.error("Error fetching currencies:", err));
+  }, []);
+
   return (
     <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans overflow-hidden">
       {/* --- 1. Sidebar (Dynamic Width) --- */}
       <aside
         style={{ width: `${sidebarWidth}px` }}
-        className="flex-shrink-0 border-r border-slate-800/60 p-6 flex flex-col bg-[#161922] select-none"
+        className="flex-shrink-0 border-r border-slate-800/60 p-6 flex flex-col bg-[#161922] select-none overflow-y-auto"
       >
         <div className="flex items-center gap-2 text-white mb-8">
           <Gem className="text-blue-400" />
           <span className="font-bold text-lg tracking-tight">Navigation</span>
         </div>
 
-        <nav className="space-y-4 mb-8">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            Select Currency
-          </div>
-          <select className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm outline-none focus:border-blue-500">
-            <option>exalted</option>
-          </select>
-        </nav>
+        <div className="mb-8">
+          <CurrencySelect
+            currencies={currencies}
+            selectedCurrency={selectedCurrency}
+            onSelect={(currency) => setSelectedCurrency(currency)}
+          />
+        </div>
 
         <ArbitrageCalculator />
       </aside>
@@ -114,7 +124,10 @@ export default function Dashboard() {
         <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-800 mb-8">
           <div className="flex items-end gap-4 mb-6">
             <span className="text-5xl font-black text-white">
-              1 Divine = 286.94 EXALTED
+              {/* Dynamic text based on selection */}1 Divine = 286.94{" "}
+              {selectedCurrency
+                ? selectedCurrency.name.toUpperCase()
+                : "EXALTED ORB"}
             </span>
           </div>
 
@@ -163,7 +176,10 @@ export default function Dashboard() {
             subValue="↑ 1.474448"
             color="text-green-400"
           />
-          <StatCard label="Gold Fee (per Unit)" value="120" />
+          <StatCard
+            label="Gold Fee (per Unit)"
+            value={selectedCurrency ? "Loading..." : "120"}
+          />
           <StatCard label="Gold for 100 Units" value="12,000" />
         </div>
       </main>
