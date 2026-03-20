@@ -37,13 +37,26 @@ def get_db():
 
 @app.get("/currencies")
 def get_currencies(db: Session = Depends(get_db)):
+    # 1. Join the Item and GoldTaxRate tables
     results = (
-        db.query(Item.name)
+        db.query(Item, GoldTaxRate)
         .join(GoldTaxRate, Item.id == GoldTaxRate.item_id)
-        .distinct()
         .all()
     )
-    return [c[0] for c in results]
+
+    # 2. Format the data perfectly for the React frontend
+    currencies_data = []
+    for item, tax in results:
+        currencies_data.append(
+            {
+                "id": item.id,  # e.g., "divine"
+                "name": item.name,  # e.g., "Divine Orb"
+                "icon_url": item.icon_url,  # e.g., "https://web.poecdn.com/..."
+                "gold_cost": tax.gold_cost,  # e.g., 800
+            }
+        )
+
+    return currencies_data
 
 
 @app.get("/prices", response_model=List[PriceRecord])
