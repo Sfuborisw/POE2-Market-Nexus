@@ -42,6 +42,7 @@ export default function Dashboard() {
   const resize = useCallback(
     (mouseMoveEvent: MouseEvent) => {
       if (isResizing) {
+        // Limit width range: min 200px, max 1000px
         const newWidth = mouseMoveEvent.clientX;
         if (newWidth > 200 && newWidth < 1000) {
           setSidebarWidth(newWidth);
