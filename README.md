@@ -15,7 +15,8 @@ cd POE2-Market-Nexus
 ```
 
 2. Set up Virtual Environment:
-```Bash
+```
+bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -25,18 +26,44 @@ pip install -r requirements.txt
 Create a .env file in the root directory:
 
 ```Code snippet
-DATABASE_URL=postgresql://your_user:your_password@localhost:5432/poe2_nexus
+DATABASE_URL=postgresql://your_id:your_password@localhost:5432/poe2_nexus
 ```
 
 4. Turn on the DB
+```
+bash
+psql -U your_id -c "CREATE DATABASE poe2_nexus;"
 psql -h localhost -p 5432 -U your_id -d poe2_nexus
+```
 
-5. Run the Backend
+5. Initialize the Database & Fetch Data:
+Run these scripts sequentially to set up your tables, seed the metadata, and fetch initial prices:
+```
+bash
+# 1. Create the items, price_history, and gold_tax_rates tables
+python3 backend/init_db.py
+
+# 2. Seed gold taxes, official item names, and CDN image URLs
+python3 -m backend.seed_tax_rates
+
+# 3. Fetch the latest market prices from Poe.ninja
+python3 -m scraper.price_fetcher
+```
+
+6. Run the Backend
 ```
 Bash
 uvicorn backend.main:app --reload
 ```
 
+7. Run the Frontend:
+Open a new terminal, navigate to your frontend directory, and start the React app:
+
+```
+bash
+npm install
+npm run dev
+```
 
 ## 🛠️ Data Ingestion
 To fetch the latest currency prices and sync them to the database, run:
