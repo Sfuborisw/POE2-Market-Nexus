@@ -94,7 +94,7 @@ export default function Dashboard() {
           />
         </div>
 
-        <ArbitrageCalculator />
+        <ArbitrageCalculator currencies={currencies} />
       </aside>
 
       {/* --- 2. Resizable Divider (The Resizer Handle) --- */}
