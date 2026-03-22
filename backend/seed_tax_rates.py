@@ -1,5 +1,6 @@
 import json
 import os
+import requests
 from backend.database import SessionLocal, Item, GoldTaxRate
 
 
@@ -55,5 +56,52 @@ def seed_gold_taxes():
         db.close()
 
 
+def fetch_metadata_from_ninja(db):
+    print("Fetching official names and icons from Poe.ninja...")
+    URL = "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate+of+the+Vaal&type=Currency"
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    try:
+        response = requests.get(URL, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+
+        items_list = data.get("items", [])
+
+        for item_info in items_list:
+            item_id = item_info.get("id")
+            db_item = db.query(Item).filter(Item.id == item_id).first()
+
+            if db_item:
+                # Update Name
+                if not db_item.name:
+                    db_item.name = item_info.get("name")
+
+                # Update Icon URL with CDN prefix
+                raw_img = item_info.get("image")
+                if raw_img and not db_item.icon_url:
+                    # Remove leading slash if exists and add official CDN
+                    clean_path = raw_img.lstrip("/")
+                    db_item.icon_url = f"https://web.poecdn.com/{clean_path}"
+
+                print(f"Updated metadata for {item_id}")
+
+        db.commit()
+        print("✨ Metadata initialization complete!")
+
+    except Exception as e:
+        print(f"❌ Error fetching metadata: {e}")
+        db.rollback()
+
+
 if __name__ == "__main__":
+    # 1. Seed the basic items and gold taxes first
     seed_gold_taxes()
+
+    # 2. Open a new database session for the metadata fetcher
+    db_session = SessionLocal()
+    try:
+        fetch_metadata_from_ninja(db_session)
+    finally:
+        db_session.close()
+        print("✨ Full database initialization successfully completed!")

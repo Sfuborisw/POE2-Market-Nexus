@@ -18,33 +18,24 @@ def fetch_and_sync():
     headers = {"User-Agent": "Mozilla/5.0"}
 
     try:
-        print(f"[{datetime.now()}] Fetching data from Poe.ninja...")
+        print(f"[{datetime.now()}] Fetching price data from Poe.ninja...")
         response = requests.get(URL, headers=headers)
         response.raise_for_status()
         data = response.json()
 
-        # 🌟 Fixed Path: Get items and lines directly from Root
         items_list = data.get("items", [])
         price_lines = {line.get("detailsId"): line for line in data.get("lines", [])}
 
-        print(f"Processing basic data for {len(items_list)} currency items...")
-
         for item_info in items_list:
-            item_id = item_info.get("id")  # This is "divine", used as DB Primary Key
+            item_id = item_info.get("id")  # e.g., "divine"
 
+            # Check if this item exists in our tracking list (DB)
             db_item = db.query(Item).filter(Item.id == item_id).first()
 
             if db_item:
-                # 1. Update Metadata (Only update name and add Prefix to image URL)
-                db_item.name = item_info.get("name")
+                # 🌟 Metadata update logic removed! Now it ONLY focuses on prices.
 
-                raw_img = item_info.get("image")
-                if raw_img:
-                    db_item.icon_url = (
-                        f"https://web.poecdn.com/{raw_img}"  # Added Domain for you
-                    )
-
-                # 2. Get Price (detailsId is only used for mapping in JSON, not stored in DB)
+                # Get the bridging ID to find the price
                 details_id = item_info.get("detailsId")
                 price_data = price_lines.get(details_id)
 
@@ -57,10 +48,12 @@ def fetch_and_sync():
                         timestamp=datetime.utcnow(),
                     )
                     db.add(new_price)
-                    print(f"✅ Sync successful: {item_id} (Name and image completed)")
+                    print(
+                        f"✅ Price updated: {item_id} -> {price_data.get('chaosEquivalent')} chaos eq."
+                    )
 
         db.commit()
-        print(f"✨ Data synchronization complete!")
+        print(f"✨ Price synchronization complete!")
 
     except Exception as e:
         print(f"❌ Error occurred: {e}")
