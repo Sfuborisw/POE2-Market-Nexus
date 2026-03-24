@@ -28,7 +28,7 @@ const data = [
 ];
 
 export default function Dashboard() {
-  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [sidebarWidth, setSidebarWidth] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
 
   const startResizing = useCallback(() => {
