@@ -105,17 +105,21 @@ Before setting up the Cron Job, you need to confirm the absolute paths for the P
 
 ### 2. Configure Crontab
 Open the Cron editor:
-```bash
+```
+bash
 crontab -e
 ```
+
 Add the following line to the bottom of the file (this schedules the script to run automatically at the top of every hour):
-```bash
-0 * * * * /YourPythonAbsPath YourScriptAbsPath >> YourLogAbsPath 2>&1
+```
+bash
+1 * * * * cd /path/to/your/POE2-Market-Nexus && venv/bin/python3 -m scraper.price_fetcher >> scraper.log 2>&1
 ```
 
 ### 3. Verify Execution Status
 You can check the log file to verify if the script is running correctly:
-```bash
+```
+bash
 cat YourLogAbsPath
 ```
 
@@ -125,7 +129,8 @@ This project consists of a FastAPI backend and a React (Vite) frontend.
 
 ### 1. Backend (FastAPI)
 Ensure your PostgreSQL service is running before starting the backend.
-```bash
+```
+bash
 # Navigate to the root directory
 # Ensure your virtual environment is active
 source venv/bin/activate  # On Ubuntu/Git Bash
@@ -139,7 +144,7 @@ The API will be available at http://127.0.0.1:8000.
 The frontend requires Node.js and npm.
 
 ```
-Bash
+bash
 # Navigate to the frontend directory
 cd frontend
 ```

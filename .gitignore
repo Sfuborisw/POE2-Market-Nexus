@@ -22,3 +22,6 @@ frontend/.DS_Store
 #JSON files
 *.json
 !gold_tax.json
+
+# Log files
+*.log
