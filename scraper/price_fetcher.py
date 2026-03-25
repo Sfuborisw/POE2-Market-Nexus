@@ -23,37 +23,32 @@ def fetch_and_sync():
         response.raise_for_status()
         data = response.json()
 
-        items_list = data.get("items", [])
-        price_lines = {line.get("detailsId"): line for line in data.get("lines", [])}
+        lines_list = data.get("lines", [])
+        success_count = 0
 
-        for item_info in items_list:
-            item_id = item_info.get("id")  # e.g., "divine"
+        for line in lines_list:
+            item_id = line.get("id")  # e.g., "alch", "exalted"
 
             # Check if this item exists in our tracking list (DB)
             db_item = db.query(Item).filter(Item.id == item_id).first()
 
             if db_item:
-                # 🌟 Metadata update logic removed! Now it ONLY focuses on prices.
+                price_val = line.get("primaryValue")
 
-                # Get the bridging ID to find the price
-                details_id = item_info.get("detailsId")
-                price_data = price_lines.get(details_id)
-
-                if price_data:
+                if price_val is not None:
                     new_price = PriceHistory(
                         item_id=db_item.id,
-                        price_value=price_data.get("chaosEquivalent"),
+                        price_value=price_val,
                         denominated_currency_id="divine",
-                        trade_count=price_data.get("count", 0),
+                        trade_count=int(line.get("volumePrimaryValue", 0)),
                         timestamp=datetime.utcnow(),
                     )
                     db.add(new_price)
-                    print(
-                        f"✅ Price updated: {item_id} -> {price_data.get('chaosEquivalent')} chaos eq."
-                    )
+                    success_count += 1
+                    print(f"✅ Price updated: {item_id} -> {price_val} Divine")
 
         db.commit()
-        print(f"✨ Price synchronization complete!")
+        print(f"✨ Price synchronization complete! Updated {success_count} records.")
 
     except Exception as e:
         print(f"❌ Error occurred: {e}")

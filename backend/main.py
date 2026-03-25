@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
+from typing import List, Optional
 from typing import List
 from backend.database import SessionLocal, PriceHistory, GoldTaxRate, Item
 from pydantic import BaseModel
@@ -20,7 +21,7 @@ app.add_middleware(
 class PriceRecord(BaseModel):
     id: int
     item_name: str
-    price_value: float
+    price_value: Optional[float] = None
     timestamp: datetime
 
     class Config:
@@ -61,12 +62,9 @@ def get_currencies(db: Session = Depends(get_db)):
 
 @app.get("/prices", response_model=List[PriceRecord])
 def get_all_prices(db: Session = Depends(get_db)):
-    # Use joinedload pre-load Item data for efficiency
-    from sqlalchemy.orm import joinedload
-
     results = (
-        db.query(PriceHistory)
-        .options(joinedload(PriceHistory.item))
+        db.query(PriceHistory, Item)
+        .join(Item, PriceHistory.item_id == Item.id)
         .order_by(PriceHistory.timestamp.desc())
         .limit(100)
         .all()
@@ -74,10 +72,10 @@ def get_all_prices(db: Session = Depends(get_db)):
 
     return [
         {
-            "id": r.id,
-            "item_name": r.item.name if r.item else f"Unknown (ID: {r.item_id})",
-            "price_value": r.price_value,
-            "timestamp": r.timestamp,
+            "id": price.id,
+            "item_name": item.name if item.name else f"Unknown (ID: {item.id})",
+            "price_value": price.price_value,
+            "timestamp": price.timestamp,
         }
-        for r in results
+        for price, item in results
     ]
