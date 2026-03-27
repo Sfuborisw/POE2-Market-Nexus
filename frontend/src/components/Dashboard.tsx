@@ -14,7 +14,7 @@ import ArbitrageCalculator from "./ArbitrageCalculator";
 import CurrencySelect from "./CurrencySelect";
 
 export default function Dashboard() {
-  const [sidebarWidth, setSidebarWidth] = useState(320);
+  const [sidebarWidth, setSidebarWidth] = useState(600);
   const [isResizing, setIsResizing] = useState(false);
 
   // --- Resizing Logic ---
