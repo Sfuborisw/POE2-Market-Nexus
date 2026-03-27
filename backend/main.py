@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from typing import List
 from backend.database import SessionLocal, PriceHistory, GoldTaxRate, Item
 from pydantic import BaseModel
 from datetime import datetime
@@ -61,14 +60,17 @@ def get_currencies(db: Session = Depends(get_db)):
 
 
 @app.get("/prices", response_model=List[PriceRecord])
-def get_all_prices(db: Session = Depends(get_db)):
-    results = (
-        db.query(PriceHistory, Item)
-        .join(Item, PriceHistory.item_id == Item.id)
-        .order_by(PriceHistory.timestamp.desc())
-        .limit(100)
-        .all()
-    )
+def get_all_prices(item_id: Optional[str] = None, db: Session = Depends(get_db)):
+    # Base query explicitly joining PriceHistory and Item
+    query = db.query(PriceHistory, Item).join(Item, PriceHistory.item_id == Item.id)
+
+    # If the frontend requests a specific item, filter it like a CSV filter
+    if item_id:
+        query = query.filter(PriceHistory.item_id == item_id)
+
+    # Order by timestamp ASCENDING so the chart draws from left (old) to right (new)
+    # Increased limit to 500 to ensure we get a good historical curve
+    results = query.order_by(PriceHistory.timestamp.desc()).limit(500).all()
 
     return [
         {
