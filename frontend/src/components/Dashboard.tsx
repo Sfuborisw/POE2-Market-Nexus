@@ -8,16 +8,16 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { Gem } from "lucide-react";
+import { Gem, ArrowRightLeft } from "lucide-react";
 
-import ArbitrageCalculator from "./ArbitrageCalculator"; // Note on path: because all components are in components/ now
+import ArbitrageCalculator from "./ArbitrageCalculator";
 import CurrencySelect from "./CurrencySelect";
 
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
 
-  // --- Resizing Logic (Preserving your original hard work) ---
+  // --- Resizing Logic ---
   const startResizing = useCallback(() => setIsResizing(true), []);
   const stopResizing = useCallback(() => setIsResizing(false), []);
 
@@ -25,9 +25,7 @@ export default function Dashboard() {
     (mouseMoveEvent: MouseEvent) => {
       if (isResizing) {
         const newWidth = mouseMoveEvent.clientX;
-        if (newWidth > 200 && newWidth < 1000) {
-          setSidebarWidth(newWidth);
-        }
+        if (newWidth > 200 && newWidth < 1000) setSidebarWidth(newWidth);
       }
     },
     [isResizing],
@@ -42,10 +40,15 @@ export default function Dashboard() {
     };
   }, [resize, stopResizing]);
 
-  // --- Data States (Connect Backend) ---
+  // --- Data States ---
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [rawPrices, setRawPrices] = useState<any[]>([]);
+
+  // 🌟 新增：重現你 Streamlit 嘅 View Mode
+  const [viewMode, setViewMode] = useState<"DIVINE_TO_ITEM" | "ITEM_TO_DIVINE">(
+    "DIVINE_TO_ITEM",
+  );
 
   // 1. Fetch Currencies
   useEffect(() => {
@@ -62,31 +65,33 @@ export default function Dashboard() {
 
   // 2. Fetch Price History
   useEffect(() => {
-    fetch("http://localhost:8000/prices")
+    if (!selectedCurrency) return;
+
+    // Filter CSV extract specific data
+    fetch(`http://localhost:8000/prices?item_id=${selectedCurrency.id}`)
       .then((res) => res.json())
       .then((data) => setRawPrices(data))
       .catch((err) => console.error("Error fetching prices:", err));
-  }, []);
+  }, [selectedCurrency]);
 
   // 3. Filter and Format Chart Data
   const chartData = useMemo(() => {
-    if (!selectedCurrency || rawPrices.length === 0) return [];
+    if (rawPrices.length === 0) return [];
 
-    // Find all quotes belonging to the selected currency, then sort them by time from oldest to newest
-    const filtered = rawPrices.filter(
-      (p) => p.item_name === selectedCurrency.name,
-    );
-    const sorted = filtered.sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    );
-
-    return sorted.map((p) => {
+    return rawPrices.map((p) => {
       const date = new Date(p.timestamp);
       const timeString = `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")} ${date.toLocaleString("en-US", { month: "short", day: "numeric" })}`;
-      return { time: timeString, rate: p.price_value };
+
+      const calculatedRate =
+        viewMode === "DIVINE_TO_ITEM" ? 1 / p.price_value : p.price_value;
+
+      return {
+        time: timeString,
+        rate: calculatedRate,
+        raw_price: p.price_value, // Keep original for reference
+      };
     });
-  }, [rawPrices, selectedCurrency]);
+  }, [rawPrices, viewMode]);
 
   // 4. Dynamically calculate Stat Card values (latest price, price movement)
   const latestData =
@@ -94,7 +99,10 @@ export default function Dashboard() {
   const previousData =
     chartData.length > 1 ? chartData[chartData.length - 2] : null;
 
-  const currentRateStr = latestData ? latestData.rate.toFixed(5) : "---";
+  const decimalPlaces = viewMode === "DIVINE_TO_ITEM" ? 2 : 5;
+  const currentRateStr = latestData
+    ? latestData.rate.toFixed(decimalPlaces)
+    : "---";
 
   let moveText = "---";
   let subMoveText = "";
@@ -103,18 +111,26 @@ export default function Dashboard() {
   if (latestData && previousData) {
     const diff = latestData.rate - previousData.rate;
     if (diff > 0) {
-      moveText = `+${diff.toFixed(5)}`;
-      subMoveText = `↑ ${diff.toFixed(6)}`;
+      moveText = `+${diff.toFixed(decimalPlaces)}`;
+      subMoveText = `↑ ${diff.toFixed(decimalPlaces + 1)}`;
       moveColor = "text-green-400";
     } else if (diff < 0) {
-      moveText = `${diff.toFixed(5)}`;
-      subMoveText = `↓ ${Math.abs(diff).toFixed(6)}`;
+      moveText = `${diff.toFixed(decimalPlaces)}`;
+      subMoveText = `↓ ${Math.abs(diff).toFixed(decimalPlaces + 1)}`;
       moveColor = "text-red-400";
     } else {
-      moveText = "0.00000";
+      moveText = "0.00";
       moveColor = "text-slate-400";
     }
   }
+
+  const currencyName = selectedCurrency
+    ? selectedCurrency.name.toUpperCase()
+    : "---";
+  const titleText =
+    viewMode === "DIVINE_TO_ITEM"
+      ? `1 DIVINE = ${currentRateStr} ${currencyName}`
+      : `1 ${currencyName} = ${currentRateStr} DIVINE`;
 
   // --- UI Render ---
   return (
@@ -131,7 +147,7 @@ export default function Dashboard() {
           <CurrencySelect
             currencies={currencies}
             selectedCurrency={selectedCurrency}
-            onSelect={(currency) => setSelectedCurrency(currency)}
+            onSelect={setSelectedCurrency}
           />
         </div>
         <ArbitrageCalculator currencies={currencies} />
@@ -155,14 +171,27 @@ export default function Dashboard() {
             <Gem className="text-blue-400" size={32} /> POE2 Market Pro
             Analytics
           </h1>
+
+          {/* 🌟 View Mode Toggle Button */}
+          <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode("DIVINE_TO_ITEM")}
+              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === "DIVINE_TO_ITEM" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}
+            >
+              1 Divine ➔ X Item
+            </button>
+            <button
+              onClick={() => setViewMode("ITEM_TO_DIVINE")}
+              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === "ITEM_TO_DIVINE" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}
+            >
+              1 Item ➔ X Divine
+            </button>
+          </div>
         </header>
 
         <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-800 mb-8">
           <div className="flex items-end gap-4 mb-6">
-            <span className="text-5xl font-black text-white">
-              1 {selectedCurrency ? selectedCurrency.name.toUpperCase() : "---"}{" "}
-              = {currentRateStr} DIVINE
-            </span>
+            <span className="text-4xl font-black text-white">{titleText}</span>
           </div>
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -178,23 +207,28 @@ export default function Dashboard() {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
+                  minTickGap={30}
                 />
                 <YAxis hide domain={["auto", "auto"]} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "#1e293b",
-                    border: "none",
+                    border: "1px solid #334155",
                     borderRadius: "8px",
                   }}
-                  itemStyle={{ color: "#4ade80" }}
+                  itemStyle={{ color: "#4ade80", fontWeight: "bold" }}
+                  formatter={(value: number) => [
+                    value.toFixed(decimalPlaces),
+                    "Rate",
+                  ]}
                 />
                 <Line
                   type="monotone"
                   dataKey="rate"
                   stroke="#4ade80"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: "#4ade80", strokeWidth: 2 }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  dot={false}
+                  activeDot={{ r: 6, fill: "#4ade80", strokeWidth: 0 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -202,7 +236,7 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-4 gap-6">
-          <StatCard label="Latest Rate (Divine)" value={currentRateStr} />
+          <StatCard label="Latest Rate" value={currentRateStr} />
           <StatCard
             label="Last Move"
             value={moveText}
@@ -244,7 +278,7 @@ function StatCard({
   color?: string;
 }) {
   return (
-    <div className="p-6 rounded-2xl bg-slate-900/30 border border-slate-800">
+    <div className="p-6 rounded-2xl bg-slate-900/30 border border-slate-800 shadow-sm">
       <div className="text-xs font-bold text-slate-500 uppercase mb-2">
         {label}
       </div>
