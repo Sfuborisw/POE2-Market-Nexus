@@ -62,7 +62,7 @@ npm run dev
 
 ## 🛠️ Data Ingestion
 To fetch the latest currency prices and sync them to the database, run:
-``bash
+```bash
 python3 scraper/price_fetcher.py
 ```
 
