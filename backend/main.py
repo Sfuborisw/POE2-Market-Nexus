@@ -81,3 +81,23 @@ def get_all_prices(item_id: Optional[str] = None, db: Session = Depends(get_db))
         }
         for price, item in results
     ]
+
+
+@app.get("/latest-prices")
+def get_latest_prices(db: Session = Depends(get_db)):
+    """
+    Fetch the most recent price for every tracked currency.
+    Used by the Arbitrage Calculator for real-time auto-filling.
+    """
+    # Fetch the last 200 records (enough to cover all currencies in the latest scraping batch)
+    recent_prices = (
+        db.query(PriceHistory).order_by(PriceHistory.timestamp.desc()).limit(200).all()
+    )
+
+    prices_dict = {}
+    for p in recent_prices:
+        # Since it's ordered by newest first, the first time we see an item_id, it's the latest price
+        if p.item_id not in prices_dict:
+            prices_dict[p.item_id] = p.price_value
+
+    return prices_dict

@@ -14,20 +14,31 @@ export default function ArbitrageCalculator({
   const [rateBC, setRateBC] = useState<number>(1415);
   const [rateCD, setRateCD] = useState<number>(0.22222);
 
-  const mockPrices: Record<string, number> = {
-    exalted: 0.0035,
-    alch: 0.0007,
-    chaos: 0.007,
-  };
+  const [livePrices, setLivePrices] = useState<Record<string, number>>({});
 
+  // Fetch real-time prices from the backend on component load
   useEffect(() => {
-    const priceB = mockPrices[currencyB] || 0.005;
-    const priceC = mockPrices[currencyC] || 0.001;
+    fetch("http://localhost:8000/latest-prices")
+      .then((res) => res.json())
+      .then((data) => {
+        setLivePrices(data);
+      })
+      .catch((err) => console.error("Error fetching latest prices:", err));
+  }, []);
+
+  // Auto-fill the inputs whenever the selected currencies OR livePrices change
+  useEffect(() => {
+    // Prevent overriding with NaN if livePrices hasn't loaded yet
+    if (Object.keys(livePrices).length === 0) return;
+
+    // Fetch the real market baseline price (fallback to 0.001 if API misses it)
+    const priceB = livePrices[currencyB] || 0.001;
+    const priceC = livePrices[currencyC] || 0.001;
 
     setRateDB(parseFloat((1 / priceB).toFixed(2)));
     setRateBC(parseFloat((priceC / priceB).toFixed(2)));
     setRateCD(parseFloat((1 / priceC).toFixed(5)));
-  }, [currencyB, currencyC]);
+  }, [currencyB, currencyC, livePrices]);
 
   // Core Math Logic (Multiply -> Divide -> Divide)
   const amountB = investment * rateDB;
