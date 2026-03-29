@@ -68,9 +68,9 @@ def get_all_prices(item_id: Optional[str] = None, db: Session = Depends(get_db))
     if item_id:
         query = query.filter(PriceHistory.item_id == item_id)
 
-    # Order by timestamp ASCENDING so the chart draws from left (old) to right (new)
-    # Increased limit to 500 to ensure we get a good historical curve
     results = query.order_by(PriceHistory.timestamp.desc()).limit(500).all()
+
+    results = results[::-1]
 
     return [
         {
