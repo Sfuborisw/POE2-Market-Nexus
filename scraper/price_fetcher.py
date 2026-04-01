@@ -2,6 +2,7 @@ import sys
 import os
 import requests
 from datetime import datetime
+from dotenv import load_dotenv
 
 # Path logic: Ensure Python can find backend
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -10,7 +11,9 @@ if project_root not in sys.path:
 
 from backend.database import SessionLocal, Item, PriceHistory
 
-URL = "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate+of+the+Vaal&type=Currency"
+load_dotenv()
+league = os.getenv("POE_LEAGUE", "Fate+of+the+Vaal")
+URL = f"https://poe.ninja/poe2/api/economy/exchange/current/overview?league={league}&type=Currency"
 
 
 def fetch_and_sync():

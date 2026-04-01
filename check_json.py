@@ -1,8 +1,12 @@
 import requests
 import json
 import os
+from dotenv import load_dotenv
 
-URL = "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate+of+the+Vaal&type=Currency"
+load_dotenv()
+league = os.getenv("POE_LEAGUE", "Fate+of+the+Vaal")
+
+URL = f"https://poe.ninja/poe2/api/economy/exchange/current/overview?league={league}&type=Currency"
 headers = {"User-Agent": "Mozilla/5.0"}
 
 

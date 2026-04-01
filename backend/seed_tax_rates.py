@@ -2,6 +2,7 @@ import json
 import os
 import requests
 from backend.database import SessionLocal, Item, GoldTaxRate
+from dotenv import load_dotenv
 
 
 def seed_gold_taxes():
@@ -58,7 +59,11 @@ def seed_gold_taxes():
 
 def fetch_metadata_from_ninja(db):
     print("Fetching official names and icons from Poe.ninja...")
-    URL = "https://poe.ninja/poe2/api/economy/exchange/current/overview?league=Fate+of+the+Vaal&type=Currency"
+
+    load_dotenv()
+    league = os.getenv("POE_LEAGUE", "Fate+of+the+Vaal")
+    URL = f"https://poe.ninja/poe2/api/economy/exchange/current/overview?league={league}&type=Currency"
+
     headers = {"User-Agent": "Mozilla/5.0"}
 
     try:
