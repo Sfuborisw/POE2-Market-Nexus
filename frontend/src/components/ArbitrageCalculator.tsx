@@ -6,6 +6,7 @@ export default function ArbitrageCalculator({
 }: {
   currencies: any[];
 }) {
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
   const [currencyB, setCurrencyB] = useState<string>("exalted");
   const [currencyC, setCurrencyC] = useState<string>("alch");
 
@@ -18,13 +19,13 @@ export default function ArbitrageCalculator({
 
   // Fetch real-time prices from the backend on component load
   useEffect(() => {
-    fetch("http://localhost:8000/latest-prices")
+    fetch(`${API_BASE_URL}/latest-prices`)
       .then((res) => res.json())
       .then((data) => {
         setLivePrices(data);
       })
       .catch((err) => console.error("Error fetching latest prices:", err));
-  }, []);
+  }, [API_BASE_URL]);
 
   // Auto-fill the inputs whenever the selected currencies OR livePrices change
   useEffect(() => {

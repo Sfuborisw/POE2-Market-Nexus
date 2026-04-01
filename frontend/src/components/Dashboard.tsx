@@ -45,14 +45,16 @@ export default function Dashboard() {
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [rawPrices, setRawPrices] = useState<any[]>([]);
 
-  // 🌟 新增：重現你 Streamlit 嘅 View Mode
   const [viewMode, setViewMode] = useState<"DIVINE_TO_ITEM" | "ITEM_TO_DIVINE">(
     "DIVINE_TO_ITEM",
   );
 
+  // Access the environment variable. Fallback to localhost if not found.
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
   // 1. Fetch Currencies
   useEffect(() => {
-    fetch("http://localhost:8000/currencies")
+    fetch(`${API_BASE_URL}/currencies`)
       .then((res) => res.json())
       .then((data) => {
         setCurrencies(data);
@@ -61,14 +63,14 @@ export default function Dashboard() {
         }
       })
       .catch((err) => console.error("Error fetching currencies:", err));
-  }, []);
+  }, [API_BASE_URL]);
 
   // 2. Fetch Price History
   useEffect(() => {
     if (!selectedCurrency) return;
 
     // Filter CSV extract specific data
-    fetch(`http://localhost:8000/prices?item_id=${selectedCurrency.id}`)
+    fetch(`${API_BASE_URL}/prices?item_id=${selectedCurrency.id}`)
       .then((res) => res.json())
       .then((data) => setRawPrices(data))
       .catch((err) => console.error("Error fetching prices:", err));
