@@ -8,13 +8,14 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { Gem, ArrowRightLeft } from "lucide-react";
+import { Gem } from "lucide-react";
 
 import ArbitrageCalculator from "./ArbitrageCalculator";
 import CurrencySelect from "./CurrencySelect";
+import Footer from "./Footer"; // 🌟 1. Import the Footer
 
 export default function Dashboard() {
-  const [sidebarWidth, setSidebarWidth] = useState(600);
+  const [sidebarWidth, setSidebarWidth] = useState(450); // Adjusted starting width
   const [isResizing, setIsResizing] = useState(false);
 
   // --- Resizing Logic ---
@@ -49,10 +50,8 @@ export default function Dashboard() {
     "DIVINE_TO_ITEM",
   );
 
-  // Access the environment variable. Fallback to localhost if not found.
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-  // 1. Fetch Currencies
   useEffect(() => {
     fetch(`${API_BASE_URL}/currencies`)
       .then((res) => res.json())
@@ -69,12 +68,11 @@ export default function Dashboard() {
   useEffect(() => {
     if (!selectedCurrency) return;
 
-    // Filter CSV extract specific data
     fetch(`${API_BASE_URL}/prices?item_id=${selectedCurrency.id}`)
       .then((res) => res.json())
       .then((data) => setRawPrices(data))
       .catch((err) => console.error("Error fetching prices:", err));
-  }, [selectedCurrency]);
+  }, [selectedCurrency, API_BASE_URL]);
 
   // 3. Filter and Format Chart Data
   const chartData = useMemo(() => {
@@ -90,12 +88,12 @@ export default function Dashboard() {
       return {
         time: timeString,
         rate: calculatedRate,
-        raw_price: p.price_value, // Keep original for reference
+        raw_price: p.price_value,
       };
     });
   }, [rawPrices, viewMode]);
 
-  // 4. Dynamically calculate Stat Card values (latest price, price movement)
+  // 4. Dynamically calculate Stat Card values
   const latestData =
     chartData.length > 0 ? chartData[chartData.length - 1] : null;
   const previousData =
@@ -108,21 +106,21 @@ export default function Dashboard() {
 
   let moveText = "---";
   let subMoveText = "";
-  let moveColor = "text-slate-400";
+  let moveColor = "text-slate-500 dark:text-slate-400";
 
   if (latestData && previousData) {
     const diff = latestData.rate - previousData.rate;
     if (diff > 0) {
       moveText = `+${diff.toFixed(decimalPlaces)}`;
       subMoveText = `↑ ${diff.toFixed(decimalPlaces + 1)}`;
-      moveColor = "text-green-400";
+      moveColor = "text-green-600 dark:text-green-400";
     } else if (diff < 0) {
       moveText = `${diff.toFixed(decimalPlaces)}`;
       subMoveText = `↓ ${Math.abs(diff).toFixed(decimalPlaces + 1)}`;
-      moveColor = "text-red-400";
+      moveColor = "text-red-600 dark:text-red-400";
     } else {
       moveText = "0.00";
-      moveColor = "text-slate-400";
+      moveColor = "text-slate-500 dark:text-slate-400";
     }
   }
 
@@ -136,13 +134,13 @@ export default function Dashboard() {
 
   // --- UI Render ---
   return (
-    <div className="flex h-screen bg-[#0f1117] text-slate-200 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 dark:bg-[#0f1117] text-slate-900 dark:text-slate-200 font-sans overflow-hidden transition-colors duration-300">
       <aside
         style={{ width: `${sidebarWidth}px` }}
-        className="flex-shrink-0 border-r border-slate-800/60 p-6 flex flex-col bg-[#161922] select-none overflow-y-auto"
+        className="flex-shrink-0 border-r border-slate-200 dark:border-slate-800/60 p-6 flex flex-col bg-white dark:bg-[#161922] select-none overflow-y-auto transition-colors duration-300"
       >
-        <div className="flex items-center gap-2 text-white mb-8">
-          <Gem className="text-blue-400" />
+        <div className="flex items-center gap-2 text-slate-900 dark:text-white mb-8">
+          <Gem className="text-blue-500 dark:text-blue-400" />
           <span className="font-bold text-lg tracking-tight">Navigation</span>
         </div>
         <div className="mb-8">
@@ -160,119 +158,125 @@ export default function Dashboard() {
         className="w-2 flex justify-center cursor-col-resize group"
       >
         <div
-          className={`w-[1px] h-full transition-colors ${isResizing ? "bg-blue-400" : "bg-slate-800 group-hover:bg-slate-600"}`}
+          className={`w-[1px] h-full transition-colors ${isResizing ? "bg-blue-400" : "bg-slate-300 dark:bg-slate-800 group-hover:bg-slate-400 dark:group-hover:bg-slate-600"}`}
         />
         <div
-          className={`w-[1px] h-full ml-[2px] transition-colors ${isResizing ? "bg-blue-400" : "bg-slate-800 group-hover:bg-slate-600"}`}
+          className={`w-[1px] h-full ml-[2px] transition-colors ${isResizing ? "bg-blue-400" : "bg-slate-300 dark:bg-slate-800 group-hover:bg-slate-400 dark:group-hover:bg-slate-600"}`}
         />
       </div>
 
-      <main className="flex-grow overflow-y-auto p-10 bg-[#0f1117]">
-        <header className="mb-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Gem className="text-blue-400" size={32} /> POE2 Market Pro
-            Analytics
-          </h1>
+      <main className="flex-grow flex flex-col overflow-y-auto bg-slate-50 dark:bg-[#0f1117] transition-colors duration-300">
+        <div className="flex-grow p-10">
+          <header className="mb-8 flex justify-between items-center">
+            <h1 className="text-3xl font-bold flex items-center gap-3 text-slate-900 dark:text-white">
+              <Gem className="text-blue-500 dark:text-blue-400" size={32} />{" "}
+              POE2 Market Pro Analytics
+            </h1>
 
-          {/* 🌟 View Mode Toggle Button */}
-          <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode("DIVINE_TO_ITEM")}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === "DIVINE_TO_ITEM" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}
-            >
-              1 Divine ➔ X Item
-            </button>
-            <button
-              onClick={() => setViewMode("ITEM_TO_DIVINE")}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === "ITEM_TO_DIVINE" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"}`}
-            >
-              1 Item ➔ X Divine
-            </button>
-          </div>
-        </header>
+            {/* 🌟 View Mode Toggle Button */}
+            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-1 transition-colors duration-300 shadow-sm dark:shadow-none">
+              <button
+                onClick={() => setViewMode("DIVINE_TO_ITEM")}
+                className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === "DIVINE_TO_ITEM" ? "bg-blue-600 text-white shadow-md" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                1 Divine ➔ X Item
+              </button>
+              <button
+                onClick={() => setViewMode("ITEM_TO_DIVINE")}
+                className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${viewMode === "ITEM_TO_DIVINE" ? "bg-blue-600 text-white shadow-md" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                1 Item ➔ X Divine
+              </button>
+            </div>
+          </header>
 
-        <div className="bg-slate-900/50 rounded-3xl p-8 border border-slate-800 mb-8">
-          <div className="flex items-end gap-4 mb-6">
-            <span className="text-4xl font-black text-white">{titleText}</span>
+          <div className="bg-white dark:bg-slate-900/50 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 mb-8 shadow-sm dark:shadow-none transition-colors duration-300">
+            <div className="flex items-end gap-4 mb-6">
+              <span className="text-4xl font-black text-slate-900 dark:text-white">
+                {titleText}
+              </span>
+            </div>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#334155"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="time"
+                    stroke="#64748b"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    minTickGap={30}
+                  />
+                  <YAxis hide domain={["auto", "auto"]} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #334155",
+                      borderRadius: "8px",
+                      color: "#f8fafc",
+                    }}
+                    itemStyle={{ color: "#4ade80", fontWeight: "bold" }}
+                    formatter={(value: number) => [
+                      value.toFixed(decimalPlaces),
+                      "Rate",
+                    ]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="rate"
+                    stroke="#4ade80"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 6, fill: "#4ade80", strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#1e293b"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="time"
-                  stroke="#64748b"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  minTickGap={30}
-                />
-                <YAxis hide domain={["auto", "auto"]} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    border: "1px solid #334155",
-                    borderRadius: "8px",
-                  }}
-                  itemStyle={{ color: "#4ade80", fontWeight: "bold" }}
-                  formatter={(value: number) => [
-                    value.toFixed(decimalPlaces),
-                    "Rate",
-                  ]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="rate"
-                  stroke="#4ade80"
-                  strokeWidth={3}
-                  dot={false}
-                  activeDot={{ r: 6, fill: "#4ade80", strokeWidth: 0 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+
+          <div className="grid grid-cols-4 gap-6">
+            <StatCard label="Latest Rate" value={currentRateStr} />
+            <StatCard
+              label="Last Move"
+              value={moveText}
+              subValue={subMoveText}
+              color={moveColor}
+            />
+            <StatCard
+              label="Gold Fee (per Unit)"
+              value={
+                selectedCurrency
+                  ? selectedCurrency.gold_cost.toLocaleString()
+                  : "---"
+              }
+            />
+            <StatCard
+              label="Gold for 100 Units"
+              value={
+                selectedCurrency
+                  ? (selectedCurrency.gold_cost * 100).toLocaleString()
+                  : "---"
+              }
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-6">
-          <StatCard label="Latest Rate" value={currentRateStr} />
-          <StatCard
-            label="Last Move"
-            value={moveText}
-            subValue={subMoveText}
-            color={moveColor}
-          />
-          <StatCard
-            label="Gold Fee (per Unit)"
-            value={
-              selectedCurrency
-                ? selectedCurrency.gold_cost.toLocaleString()
-                : "---"
-            }
-          />
-          <StatCard
-            label="Gold for 100 Units"
-            value={
-              selectedCurrency
-                ? (selectedCurrency.gold_cost * 100).toLocaleString()
-                : "---"
-            }
-          />
-        </div>
+        <Footer />
       </main>
     </div>
   );
 }
 
-// Sub-component StatCard, placed at the end of the same file
 function StatCard({
   label,
   value,
   subValue,
-  color = "text-white",
+  color = "text-slate-900 dark:text-white", // Default to dark text in light mode, white in dark mode
 }: {
   label: string;
   value: string | number;
@@ -280,7 +284,7 @@ function StatCard({
   color?: string;
 }) {
   return (
-    <div className="p-6 rounded-2xl bg-slate-900/30 border border-slate-800 shadow-sm">
+    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none transition-colors duration-300">
       <div className="text-xs font-bold text-slate-500 uppercase mb-2">
         {label}
       </div>
