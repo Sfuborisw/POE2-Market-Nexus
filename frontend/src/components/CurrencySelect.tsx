@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
-// 1. Updated Interface: Now we expect all these fields from the backend
 interface Currency {
   id: string;
   name: string;
@@ -23,7 +22,6 @@ const CurrencySelect: React.FC<CurrencySelectProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Handle clicking outside the dropdown to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -40,21 +38,20 @@ const CurrencySelect: React.FC<CurrencySelectProps> = ({
     };
   }, []);
 
-  // Fallback image URL in case the official CDN fails
   const fallbackImage =
     "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlVG9SYXJlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/7ca519f632/CurrencyUpgradeToRare.png";
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">
+      <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 block transition-colors duration-300">
         Select Currency
       </label>
 
-      {/* 2. Main dropdown button (Image + Text) */}
+      {/* 🌟 Updated Dropdown Button for Light/Dark Mode */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-slate-900 border border-slate-700 hover:border-slate-500 rounded-lg p-3 flex items-center justify-between transition-colors focus:outline-none focus:border-blue-500"
+        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-500 rounded-lg p-3 flex items-center justify-between transition-colors focus:outline-none focus:border-blue-500 shadow-sm dark:shadow-none"
       >
         <div className="flex items-center gap-3">
           {selectedCurrency ? (
@@ -66,30 +63,32 @@ const CurrencySelect: React.FC<CurrencySelectProps> = ({
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = fallbackImage;
-                  target.onerror = null; // Prevent infinite loop
+                  target.onerror = null;
                 }}
               />
-              <span className="text-sm font-semibold text-slate-200">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-200">
                 {selectedCurrency.name}
               </span>
             </>
           ) : (
-            <span className="text-sm text-slate-400">Select an option...</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              Select an option...
+            </span>
           )}
         </div>
         <ChevronDown
           size={18}
-          className={`text-slate-400 transition-transform duration-200 ${
+          className={`text-slate-500 dark:text-slate-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
 
-      {/* 3. Dropdown menu list (Image + Text) */}
+      {/* 🌟 Updated Dropdown Menu for Light/Dark Mode */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-slate-900 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto transition-colors duration-300">
           {currencies.length === 0 ? (
-            <div className="p-4 text-sm text-slate-400 text-center">
+            <div className="p-4 text-sm text-slate-500 dark:text-slate-400 text-center">
               Loading data...
             </div>
           ) : (
@@ -102,9 +101,9 @@ const CurrencySelect: React.FC<CurrencySelectProps> = ({
                       onSelect(currency);
                       setIsOpen(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 transition-colors text-left ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left ${
                       selectedCurrency?.id === currency.id
-                        ? "bg-slate-800/80 border-l-2 border-blue-500"
+                        ? "bg-slate-50 dark:bg-slate-800/80 border-l-2 border-blue-500"
                         : "border-l-2 border-transparent"
                     }`}
                   >
@@ -118,7 +117,7 @@ const CurrencySelect: React.FC<CurrencySelectProps> = ({
                         target.onerror = null;
                       }}
                     />
-                    <span className="text-sm text-slate-200">
+                    <span className="text-sm text-slate-900 dark:text-slate-200">
                       {currency.name}
                     </span>
                   </button>
