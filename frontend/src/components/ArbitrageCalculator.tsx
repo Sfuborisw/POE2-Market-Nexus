@@ -17,7 +17,6 @@ export default function ArbitrageCalculator({
 
   const [livePrices, setLivePrices] = useState<Record<string, number>>({});
 
-  // Fetch real-time prices from the backend on component load
   useEffect(() => {
     fetch(`${API_BASE_URL}/latest-prices`)
       .then((res) => res.json())
@@ -27,12 +26,9 @@ export default function ArbitrageCalculator({
       .catch((err) => console.error("Error fetching latest prices:", err));
   }, [API_BASE_URL]);
 
-  // Auto-fill the inputs whenever the selected currencies OR livePrices change
   useEffect(() => {
-    // Prevent overriding with NaN if livePrices hasn't loaded yet
     if (Object.keys(livePrices).length === 0) return;
 
-    // Fetch the real market baseline price (fallback to 0.001 if API misses it)
     const priceB = livePrices[currencyB] || 0.001;
     const priceC = livePrices[currencyC] || 0.001;
 
@@ -41,7 +37,6 @@ export default function ArbitrageCalculator({
     setRateCD(parseFloat((1 / priceC).toFixed(5)));
   }, [currencyB, currencyC, livePrices]);
 
-  // Core Math Logic (Multiply -> Divide -> Divide)
   const amountB = investment * rateDB;
   const amountC = rateBC > 0 ? amountB / rateBC : 0;
   const finalD = rateCD > 0 ? amountC / rateCD : 0;
@@ -58,7 +53,6 @@ export default function ArbitrageCalculator({
           ? `${Math.abs(profitPct).toFixed(0)}% Loss`
           : "0% Profit";
 
-  // Gold Tax Calculation
   const getGoldCost = (id: string) =>
     currencies.find((c) => c.id === id)?.gold_cost || 100;
   const taxB = amountB * getGoldCost(currencyB);
@@ -66,22 +60,24 @@ export default function ArbitrageCalculator({
   const taxD = finalD * getGoldCost("divine");
   const totalGold = taxB + taxC + taxD;
 
-  // Helper to get currency display name
   const getCurrencyName = (id: string) => {
     const found = currencies.find((c) => c.id === id);
     return found ? found.name.toUpperCase() : id.toUpperCase();
   };
 
   return (
-    <div className="bg-slate-900/60 rounded-2xl border border-slate-700/50 p-5 mt-4 flex flex-col gap-5">
-      <div className="flex items-center gap-2 text-white border-b border-slate-700/50 pb-3">
-        <Calculator className="text-purple-400" size={20} />
+    <div className="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-5 mt-4 flex flex-col gap-5 transition-colors duration-300 shadow-sm dark:shadow-none">
+      <div className="flex items-center gap-2 text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700/50 pb-3 transition-colors duration-300">
+        <Calculator
+          className="text-purple-500 dark:text-purple-400"
+          size={20}
+        />
         <span className="font-bold tracking-wide">Arbitrage Simulator</span>
       </div>
 
       {/* Initial Investment */}
-      <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700">
-        <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">
+      <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors duration-300">
+        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 block">
           Initial Investment
         </label>
         <div className="flex items-center gap-2">
@@ -89,16 +85,16 @@ export default function ArbitrageCalculator({
             type="number"
             value={investment}
             onChange={(e) => setInvestment(Number(e.target.value))}
-            className="bg-slate-900 text-white font-mono font-bold text-lg rounded px-3 py-2 w-full border border-slate-600 focus:border-purple-500 outline-none"
+            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold text-lg rounded px-3 py-2 w-full border border-slate-300 dark:border-slate-600 focus:border-purple-500 outline-none transition-colors duration-300 shadow-inner dark:shadow-none"
           />
-          <span className="text-yellow-400 font-bold tracking-wider">
+          <span className="text-yellow-600 dark:text-yellow-400 font-bold tracking-wider">
             DIVINE
           </span>
         </div>
       </div>
 
       <div className="flex justify-center -my-2 relative z-10">
-        <div className="bg-slate-800 p-1 rounded-full border border-slate-700">
+        <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700 transition-colors duration-300">
           <ArrowDown size={14} className="text-slate-400" />
         </div>
       </div>
@@ -118,7 +114,7 @@ export default function ArbitrageCalculator({
       />
 
       <div className="flex justify-center -my-2 relative z-10">
-        <div className="bg-slate-800 p-1 rounded-full border border-slate-700">
+        <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700 transition-colors duration-300">
           <ArrowDown size={14} className="text-slate-400" />
         </div>
       </div>
@@ -138,7 +134,7 @@ export default function ArbitrageCalculator({
       />
 
       <div className="flex justify-center -my-2 relative z-10">
-        <div className="bg-slate-800 p-1 rounded-full border border-slate-700">
+        <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-full border border-slate-200 dark:border-slate-700 transition-colors duration-300">
           <ArrowDown size={14} className="text-slate-400" />
         </div>
       </div>
@@ -148,7 +144,7 @@ export default function ArbitrageCalculator({
         stepNum={3}
         fromLabel={getCurrencyName(currencyC)}
         toCurrency="DIVINE"
-        setTargetCurrency={() => {}} // Disabled for fixed target
+        setTargetCurrency={() => {}}
         rateValue={rateCD}
         setRateValue={setRateCD}
         currencies={currencies}
@@ -159,35 +155,47 @@ export default function ArbitrageCalculator({
 
       {/* Final Summary Panel */}
       <div
-        className={`mt-2 p-5 rounded-xl border shadow-lg ${profit > 0 ? "bg-green-900/20 border-green-800/50" : profit < 0 ? "bg-red-900/20 border-red-800/50" : "bg-slate-800 border-slate-700"}`}
+        className={`mt-2 p-5 rounded-xl border shadow-md transition-colors duration-300 ${
+          profit > 0
+            ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50"
+            : profit < 0
+              ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
+              : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+        }`}
       >
         <div className="flex justify-between items-end mb-2">
-          <span className="text-sm font-bold text-slate-300">
+          <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
             Final Return:
           </span>
-          <span className="text-2xl font-black font-mono text-white">
+          <span className="text-2xl font-black font-mono text-slate-900 dark:text-white">
             {finalD.toFixed(4)} D
           </span>
         </div>
         <div className="flex justify-between items-center mb-5">
-          <span className="text-xs font-bold text-slate-400 uppercase">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">
             Net Profit:
           </span>
           <span
-            className={`text-xl font-black font-mono ${profit > 0 ? "text-green-400" : profit < 0 ? "text-red-400" : "text-slate-400"}`}
+            className={`text-xl font-black font-mono ${
+              profit > 0
+                ? "text-green-600 dark:text-green-400"
+                : profit < 0
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-slate-500 dark:text-slate-400"
+            }`}
           >
             {profitText}
           </span>
         </div>
 
-        <div className="border-t border-slate-700/70 pt-3 flex justify-between items-center bg-slate-900/40 -mx-5 -mb-5 px-5 py-3 rounded-b-xl">
-          <div className="flex items-center gap-2 text-slate-400">
-            <Coins size={16} className="text-yellow-500" />
+        <div className="border-t border-slate-200 dark:border-slate-700/70 pt-3 flex justify-between items-center bg-slate-100 dark:bg-slate-900/40 -mx-5 -mb-5 px-5 py-3 rounded-b-xl transition-colors duration-300">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+            <Coins size={16} className="text-yellow-600 dark:text-yellow-500" />
             <span className="text-xs font-bold uppercase tracking-wider">
               Est. Gold Tax
             </span>
           </div>
-          <span className="font-mono font-bold text-yellow-500">
+          <span className="font-mono font-bold text-yellow-600 dark:text-yellow-500">
             {totalGold.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </span>
         </div>
@@ -210,7 +218,7 @@ function RateInputRow({
   resultLabel,
 }: any) {
   return (
-    <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 flex flex-col gap-4 relative">
+    <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 flex flex-col gap-4 relative transition-colors duration-300">
       {/* Step Badge */}
       <div className="absolute -top-2.5 -left-2.5 bg-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md border border-purple-400 shadow-sm">
         STEP {stepNum}
@@ -224,20 +232,25 @@ function RateInputRow({
           </span>
           <div className="flex items-center gap-2">
             <span
-              className="text-xs font-bold text-slate-300 w-[150px] inline-block truncate"
+              className="text-xs font-bold text-slate-700 dark:text-slate-300 w-[150px] inline-block truncate"
               title={fromLabel}
             >
               {fromLabel}
             </span>
-            <ArrowRight size={14} className="text-slate-500 flex-shrink-0" />
+            <ArrowRight
+              size={14}
+              className="text-slate-400 dark:text-slate-500 flex-shrink-0"
+            />
 
             {isFixedTarget ? (
-              <span className="text-xs font-bold text-yellow-400">DIVINE</span>
+              <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">
+                DIVINE
+              </span>
             ) : (
               <select
                 value={toCurrency}
                 onChange={(e) => setTargetCurrency(e.target.value)}
-                className="bg-slate-900 text-xs font-bold text-blue-300 border border-slate-600 rounded px-1.5 py-1 outline-none w-full max-w-[150px] cursor-pointer hover:border-blue-400 transition-colors"
+                className="bg-white dark:bg-slate-900 text-xs font-bold text-blue-600 dark:text-blue-300 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 outline-none w-full max-w-[150px] cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 transition-colors duration-300"
               >
                 {currencies.map((c: any) => (
                   <option key={c.id} value={c.id}>
@@ -251,32 +264,37 @@ function RateInputRow({
 
         {/* Right Side: Rate Input */}
         <div className="flex flex-col items-end gap-1.5 w-[45%]">
-          <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider">
             Exchange Rate
           </span>
-          <div className="flex items-center gap-1.5 bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-600 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all w-full max-w-[130px]">
-            <Edit2 size={12} className="text-slate-500 flex-shrink-0" />
+          <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all w-full max-w-[130px] shadow-inner dark:shadow-none">
+            <Edit2
+              size={12}
+              className="text-slate-400 dark:text-slate-500 flex-shrink-0"
+            />
             <input
               type="number"
               value={rateValue}
               onChange={(e) => setRateValue(Number(e.target.value))}
-              className="bg-transparent text-white font-mono text-sm w-full outline-none text-right"
+              className="bg-transparent text-slate-900 dark:text-white font-mono text-sm w-full outline-none text-right transition-colors duration-300"
             />
           </div>
         </div>
       </div>
 
       {/* Bottom Side: Resulting Amount Yield */}
-      <div className="bg-slate-900/80 rounded-lg px-3 py-2 flex justify-between items-center border border-slate-700/50 mt-1">
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+      <div className="bg-slate-100 dark:bg-slate-900/80 rounded-lg px-3 py-2 flex justify-between items-center border border-slate-200 dark:border-slate-700/50 mt-1 transition-colors duration-300">
+        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
           Yields Amount:
         </span>
-        <span className="font-mono font-bold text-[15px] text-green-400 truncate">
+        <span className="font-mono font-bold text-[15px] text-green-600 dark:text-green-400 truncate">
           {resultAmount.toLocaleString(undefined, {
             minimumFractionDigits: 0,
             maximumFractionDigits: 5,
           })}
-          <span className="text-xs text-green-600/80 ml-1">{resultLabel}</span>
+          <span className="text-xs text-green-700/80 dark:text-green-600/80 ml-1">
+            {resultLabel}
+          </span>
         </span>
       </div>
     </div>
