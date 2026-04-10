@@ -1,9 +1,11 @@
+/* 1. All imports MUST be at the very top */
 @import "tailwindcss";
-
-@custom-variant dark (&:is(.dark, .dark *));
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
 
+/* 2. Custom variants and other statements come after */
+@custom-variant dark (&:is(.dark, .dark *));
+
+/* 3. Standard CSS rules */
 :root {
   font-family: "Inter", sans-serif;
 }
