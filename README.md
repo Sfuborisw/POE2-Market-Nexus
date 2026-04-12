@@ -38,7 +38,7 @@ psql -h localhost -p 5432 -U your_id -d poe2_nexus
 Run these scripts sequentially to set up your tables, seed the metadata, and fetch initial prices:
 ```bash
 # 1. Create the items, price_history, and gold_tax_rates tables
-python3 backend/init_db.py
+python3 -m backend.init_db
 
 # 2. Seed gold taxes, official item names, and CDN image URLs
 python3 -m backend.seed_tax_rates
