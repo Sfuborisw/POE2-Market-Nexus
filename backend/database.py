@@ -16,8 +16,10 @@ from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / ".env"
-load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_path, override=True)
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+print(f"🔍 DEBUG: Currently using DB URL -> {DATABASE_URL}")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
