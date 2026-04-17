@@ -1,10 +1,11 @@
 # POE2 Market Nexus 📈
 
-[![Deployment Status](https://img.shields.io/website?label=Live%20Demo&up_message=Online&url=https%3A%2F%2Fyour-vercel-link.vercel.app&style=for-the-badge&color=059669)](https://poe-2-market-nexus.vercel.app/)
+[![Deployment Status](https://img.shields.io/website?label=Live%20Demo&up_message=Online&url=https%3A%2F%2Fhttps://poe-2-market-nexus.vercel.app&style=for-the-badge&color=059669)](https://poe-2-market-nexus.vercel.app/)
 [![Backend Status](https://img.shields.io/website?label=Backend%20API&up_message=Active&url=https%3A%2F%2Fyour-render-api.onrender.com%2Fdocs&style=for-the-badge&color=2563eb)](https://your-render-api.onrender.com/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-> **Live Demo:** [https://poe-2-market-nexus.vercel.app/]
+> **Live Demo:** [https://poe-2-market-nexus.vercel.app/](https://poe-2-market-nexus.vercel.app/)
+> **Backend API:** [https://your-render-api.onrender.com](https://your-render-api.onrender.com)
 
 ---
 
