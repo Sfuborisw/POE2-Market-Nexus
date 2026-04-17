@@ -1,7 +1,25 @@
 # POE2 Market Nexus 📈
 
-This is a data-driven project designed to track and analyze the economy of Path of Exile 2. It automatically fetches market data from Poe.ninja and stores it in a normalized PostgreSQL database for historical analysis.
+[![Deployment Status](https://img.shields.io/website?label=Live%20Demo&up_message=Online&url=https%3A%2F%2Fyour-vercel-link.vercel.app&style=for-the-badge&color=059669)](https://poe-2-market-nexus.vercel.app/)
+[![Backend Status](https://img.shields.io/website?label=Backend%20API&up_message=Active&url=https%3A%2F%2Fyour-render-api.onrender.com%2Fdocs&style=for-the-badge&color=2563eb)](https://your-render-api.onrender.com/docs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+> **Live Demo:** [https://poe-2-market-nexus.vercel.app/]
+
+---
+
+## 🚀 Project Status & Progress
+
+Currently, the core infrastructure is fully deployed and functional.
+
+- [x] **Phase 1: Foundation** - Database schema design & Supabase setup.
+- [x] **Phase 2: ETL Pipeline** - Python scraper for Poe.ninja integration.
+- [x] **Phase 3: Backend** - FastAPI REST endpoints & Render deployment.
+- [x] **Phase 4: Frontend** - React dashboard with real-time data visualization.
+- [ ] **Phase 5: Automation** - Finalizing Ubuntu Cron Jobs for 24/7 price tracking.
+- [ ] **Phase 6: Advanced Analytics** - Implementing price trend charts (Coming Soon).
+
+---
 ### Prerequisites
 - **OS**: Windows 11 with Ubuntu (WSL2)
 - **Database**: PostgreSQL
