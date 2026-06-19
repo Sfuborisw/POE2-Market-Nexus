@@ -61,7 +61,7 @@ def fetch_metadata_from_ninja(db):
     print("Fetching official names and icons from Poe.ninja...")
 
     load_dotenv()
-    league = os.getenv("POE_LEAGUE", "Fate+of+the+Vaal")
+    league = os.getenv("POE_LEAGUE", "Runes+of+Aldur")
     URL = f"https://poe.ninja/poe2/api/economy/exchange/current/overview?league={league}&type=Currency"
 
     headers = {"User-Agent": "Mozilla/5.0"}

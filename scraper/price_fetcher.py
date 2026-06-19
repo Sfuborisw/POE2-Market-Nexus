@@ -12,7 +12,7 @@ if project_root not in sys.path:
 from backend.database import SessionLocal, Item, PriceHistory
 
 load_dotenv()
-league = os.getenv("POE_LEAGUE", "Fate+of+the+Vaal")
+league = os.getenv("POE_LEAGUE", "Runes+of+Aldur")
 URL = f"https://poe.ninja/poe2/api/economy/exchange/current/overview?league={league}&type=Currency"
 
 

@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-league = os.getenv("POE_LEAGUE", "Fate+of+the+Vaal")
+league = os.getenv("POE_LEAGUE", "Runes+of+Aldur")
 
 URL = f"https://poe.ninja/poe2/api/economy/exchange/current/overview?league={league}&type=Currency"
 headers = {"User-Agent": "Mozilla/5.0"}
