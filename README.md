@@ -18,7 +18,7 @@ Currently, the core infrastructure is fully deployed and functional.
 - [x] **Phase 2: ETL Pipeline** - Python scraper for Poe.ninja integration.
 - [x] **Phase 3: Backend** - FastAPI REST endpoints & Render deployment.
 - [x] **Phase 4: Frontend** - React dashboard with real-time data visualization.
-- [ ] **Phase 5: Automation** - Finalizing Ubuntu Cron Jobs for 24/7 price tracking.
+- [x] **Phase 5: Automation** - Finalizing Ubuntu Cron Jobs for 24/7 price tracking.
 - [ ] **Phase 6: Advanced Analytics** - Implementing price trend charts (Coming Soon).
 
 ---
